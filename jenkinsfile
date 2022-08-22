@@ -1,21 +1,23 @@
 pipeline {
     agent any
-    stage('Sonarqube analysis ') {
-        environment {
+    stages {
+        stage('Sonarqube analysis ') {
+            environment {
             //def scannerHome = tool 'SonarScanner 4.10.0'
 
-            MSBUILD_SQ_SCANNER_HOME = tool name: 'sonarscanner', type: 'hudson.plugins.sonar.MsBuildSQRunnerInstallation'
-        }
+                MSBUILD_SQ_SCANNER_HOME = tool name: 'sonarscanner', type: 'hudson.plugins.sonar.MsBuildSQRunnerInstallation'
+            }
 
-        steps {
-            withSonarQubeEnv('mysonarserver') {
-                sh 'dotnet restore'
+            steps {
+                withSonarQubeEnv('mysonarserver') {
+                    sh 'dotnet restore'
 
-                sh("""dotnet ${MSBUILD_SQ_SCANNER_HOME}/SonarScanner.MSBuild.dll begin /k:'app_key'""")
+                    sh("""dotnet ${MSBUILD_SQ_SCANNER_HOME}/SonarScanner.MSBuild.dll begin /k:'app_key'""")
 
-                sh 'dotnet build dotnetapp.csproj'
+                    sh 'dotnet build dotnetapp.csproj'
 
-                sh "dotnet ${MSBUILD_SQ_SCANNER_HOME}/SonarScanner.MSBuild.dll end"
+                    sh "dotnet ${MSBUILD_SQ_SCANNER_HOME}/SonarScanner.MSBuild.dll end"
+                }
             }
         }
     }
