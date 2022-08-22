@@ -1,40 +1,21 @@
 pipeline {
     agent any
-    stages {
-        stage('build && SonarQube analysis') {
-            steps {
-                withSonarQubeEnv(installationName: 'mysonarserver') {
-                // Optionally use a Maven environment you've configured already
-                //withMaven(maven:'Maven 3.5') {
-                //  sh 'mvn clean package sonar:sonar'
-                //}
-                }
-            }
-        }
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 1, unit: 'HOURS') {
-                    // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
-                    // true = set pipeline to UNSTABLE, false = don't
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-        stage('build') {
-            steps {
-                echo 'hello dsr build'
-            }
+    stage('Sonarqube analysis ') {
+        environment {
+            //def scannerHome = tool 'SonarScanner 4.10.0'
+
+            MSBUILD_SQ_SCANNER_HOME = tool name: 'sonarscanner', type: 'hudson.plugins.sonar.MsBuildSQRunnerInstallation'
         }
 
-        stage('test') {
-            steps {
-                echo 'test the file'
-            }
-        }
+        steps {
+            withSonarQubeEnv('mysonarserver') {
+                sh 'dotnet restore'
 
-        stage('deploy') {
-            steps {
-                echo 'deploy the app'
+                sh("""dotnet ${MSBUILD_SQ_SCANNER_HOME}/SonarScanner.MSBuild.dll begin /k:'app_key'""")
+
+                sh 'dotnet build dotnetapp.csproj'
+
+                sh "dotnet ${MSBUILD_SQ_SCANNER_HOME}/SonarScanner.MSBuild.dll end"
             }
         }
     }
