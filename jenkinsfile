@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        mysonarcred = credentials('cred')
+        mysonarcred = credentials('mysonarapplication')
     }
 
     stages {
