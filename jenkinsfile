@@ -1,23 +1,27 @@
 pipeline {
     agent any
+
+    environment {
+        mysonarcred = credentials('cred')
+    }
+
     stages {
-        stage('Sonarqube analysis ') {
-            environment {
-            //def scannerHome = tool 'SonarScanner 4.10.0'
-
-                MSBUILD_SQ_SCANNER_HOME = tool name: 'sonarscanner', type: 'hudson.plugins.sonar.MsBuildSQRunnerInstallation'
-            }
-
+        stage('build') {
             steps {
-                withSonarQubeEnv('mysonarserver') {
-                    sh 'dotnet restore'
+                echo 'hello world build stage'
+                echo "my sonar cred is: ${mysonarcred}"
+            }
+        }
 
-                    sh("""dotnet ${MSBUILD_SQ_SCANNER_HOME}/SonarScanner.MSBuild.dll begin /k:'app_key'""")
+        stage('test') {
+            steps {
+                echo 'hello test stage'
+            }
+        }
 
-                    sh 'dotnet build dotnetapp.csproj'
-
-                    sh "dotnet ${MSBUILD_SQ_SCANNER_HOME}/SonarScanner.MSBuild.dll end"
-                }
+        stage('deploy') {
+            steps {
+                echo 'hello deploy'
             }
         }
     }
