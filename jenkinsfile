@@ -9,7 +9,7 @@ pipeline {
         stage('build') {
             steps {
                 echo 'hello world build stage'
-                echo "my sonar cred is: ${mysonarcred}"
+                sh "my sonar cred is: ${mysonarcred}"
             }
         }
 
